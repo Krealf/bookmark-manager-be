@@ -4,8 +4,10 @@ import { Error as MongooseError } from 'mongoose';
 import { ErrorCodes } from '../constants/error-codes';
 import BadRequestError from '../errors/bad-request-error';
 import Conflict from '../errors/conflict-error';
+import NotAuthorizedError from '../errors/not-authorized-error';
 import { NotFoundError } from '../errors/not-found-error';
 import { transformError } from '../helpers/transform-error';
+import tokenModel from './token.model';
 import UserModel, { User } from './user.model';
 
 export const createUser = async (
@@ -18,15 +20,23 @@ export const createUser = async (
 
   try {
     const newUser = await UserModel.create(user);
-    const token = newUser.generateAccessToken();
+    const accessToken = newUser.generateAccessToken();
+    const refreshToken = newUser.generateRefreshToken();
+    await tokenModel.saveToken(newUser._id, refreshToken);
 
     res
       .status(201)
-      .cookie('accessToken', token, {
+      .cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+      })
+      .cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
       })
       .send({
         id: newUser._id,
@@ -56,14 +66,22 @@ export const loginUser = async (
   try {
     const user = await UserModel.findByCredentials(email, password);
     const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    await tokenModel.saveToken(user._id, refreshToken);
 
     res
       .status(201)
+      .cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+      })
       .cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
       })
       .send({});
   } catch (error) {
@@ -74,13 +92,26 @@ export const loginUser = async (
 export const logOutUser = async (
   req: Request,
   res: Response,
-  _next: NextFunction,
+  next: NextFunction,
 ) => {
+  const { refreshToken } = req.cookies;
+
+  try {
+    await tokenModel.deleteOne({
+      refreshToken,
+    });
+  } catch (error) {
+    return next(error);
+  }
+
   res
+    .clearCookie('refreshToken', {
+      httpOnly: true,
+    })
     .clearCookie('accessToken', {
       httpOnly: true,
     })
-    .json({});
+    .json();
 };
 
 export const getDataUser = async (
@@ -99,9 +130,55 @@ export const getDataUser = async (
         avatarUrl: user.avatarUrl || '',
       });
     } else {
-      next(new NotFoundError('User not found'));
+      return next(new NotFoundError('User not found'));
     }
   } catch (error) {
-    next(error);
+    return next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { refreshToken: oldRefreshToken } = req.cookies; // Старый токен из куки, который отправил пользователь
+
+  if (!oldRefreshToken) {
+    return next(new NotAuthorizedError());
+  }
+
+  try {
+    const user = await UserModel.findById(res.locals.user.id).orFail(
+      () => new NotFoundError('User not found'),
+    );
+
+    await tokenModel.deleteOne({
+      refreshToken: oldRefreshToken,
+      userId: user._id,
+    });
+
+    const newAccessToken = user.generateAccessToken();
+    const newRefreshToken = user.generateRefreshToken();
+
+    await tokenModel.saveToken(user._id, newRefreshToken);
+
+    res
+      .status(201)
+      .cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+      })
+      .cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
+      })
+      .send();
+  } catch (error) {
+    return next(error);
   }
 };

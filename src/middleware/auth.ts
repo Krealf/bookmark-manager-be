@@ -11,20 +11,18 @@ const auth = (req: Request, res: Response, next: NextFunction) => {
     return next(new NotAuthorizedError());
   }
 
-  const tokenSecret = process.env.JWT_SECRET as string;
+  const tokenAccessSecret = process.env.JWT_ACCESS_SECRET as string;
 
   try {
-    const decoded = jwt.verify(accessToken, tokenSecret);
+    const decodedAccessToken = jwt.verify(accessToken, tokenAccessSecret);
 
-    if (isCustomPayload(decoded)) {
-      res.locals.user = decoded;
-    } else {
-      next(new NotAuthorizedError('Invalid token'));
+    if (!isCustomPayload(decodedAccessToken)) {
+      return next(new NotAuthorizedError('Invalid token'));
     }
-
-    next();
+    res.locals.user = decodedAccessToken;
+    return next();
   } catch {
-    next(new NotAuthorizedError());
+    return next(new NotAuthorizedError());
   }
 };
 

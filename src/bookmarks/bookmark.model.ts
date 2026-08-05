@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 
 export interface Bookmark {
   title: string;
@@ -9,6 +9,7 @@ export interface Bookmark {
   pinned: boolean;
   isArchived: boolean;
   visitCount: number;
+  owner: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }

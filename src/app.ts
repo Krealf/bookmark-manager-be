@@ -49,7 +49,7 @@ const run = async () => {
     console.log('MongoDB connected');
 
     app.listen(PORT, () => {
-      console.log('Started on http://localhost:' + PORT);
+      console.log('Server started on http://localhost:' + PORT);
       // console.log('Docs available at http://localhost:' + PORT + '/api-docs');
     });
   } catch (error) {

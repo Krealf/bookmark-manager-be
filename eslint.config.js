@@ -27,7 +27,7 @@ export default defineConfig([
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/prefer-top-level-await': 'off',
       'unicorn/no-top-level-side-effects': 'off',
-      "unicorn/no-this-outside-of-class": "off",
+      'unicorn/no-this-outside-of-class': 'off',
       'unicorn/name-replacements': [
         'error',
         {

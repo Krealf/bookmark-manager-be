@@ -1,10 +1,11 @@
-import Router from 'express';
+import { Router } from 'express';
 
-import { createBookmark } from './bookmark.controller';
+import { createBookmark, getAllBookmarks } from './bookmark.controller';
 
 // Создаём роутер
 const router = Router();
 
-router.post('/bookmarks', createBookmark);
+router.post('/api/bookmarks', createBookmark);
+router.get('/api/bookmarks', getAllBookmarks);
 
 export default router;

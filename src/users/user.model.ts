@@ -12,6 +12,7 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   generateAccessToken: () => string;
+  generateRefreshToken: () => string;
 }
 
 interface UserDocument extends Document, User {}
@@ -98,9 +99,21 @@ userSchema.methods.generateAccessToken = function () {
     {
       id: this._id,
     },
-    process.env.JWT_SECRET as string,
+    process.env.JWT_ACCESS_SECRET as string,
     {
       expiresIn: '7d',
+    },
+  );
+};
+
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    process.env.JWT_REFRESH_SECRET as string,
+    {
+      expiresIn: '30d',
     },
   );
 };
@@ -121,7 +134,7 @@ userSchema.statics.findByCredentials = async function (
     return user;
   }
 
-  throw new NotAuthorizedError('Invalid credentials!');
+  throw new NotAuthorizedError('Invalid password!');
 };
 
 const userModel = model<User, UserModel>('user', userSchema);
