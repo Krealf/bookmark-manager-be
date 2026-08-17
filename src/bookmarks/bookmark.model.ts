@@ -10,6 +10,7 @@ export interface Bookmark {
   isArchived: boolean;
   visitCount: number;
   owner: Types.ObjectId;
+  visitedAt: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -53,6 +54,10 @@ const bookmarkSchema = new Schema(
       default: 0,
       min: 0,
     },
+    visitedAt: {
+      type: Date,
+      default: Date.now(),
+    },
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'user',
@@ -62,6 +67,14 @@ const bookmarkSchema = new Schema(
   {
     timestamps: true,
     versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform: (_document, returnValue: Record<string, any>) => {
+        delete returnValue._id;
+        delete returnValue.__v;
+        return returnValue;
+      },
+    },
   },
 );
 

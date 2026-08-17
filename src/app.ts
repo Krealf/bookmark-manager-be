@@ -48,9 +48,10 @@ const run = async () => {
     await mongoose.connect(MONGO_URL as string);
     console.log('MongoDB connected');
 
-    app.listen(PORT, () => {
-      console.log('Server started on http://localhost:' + PORT);
-      // console.log('Docs available at http://localhost:' + PORT + '/api-docs');
+    const server = app.listen(Number(PORT), '0.0.0.0');
+
+    server.on('listening', () => {
+      console.log('Server listening:', server.address());
     });
   } catch (error) {
     console.error(error);

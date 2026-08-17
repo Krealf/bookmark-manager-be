@@ -32,14 +32,14 @@ export const createUser = async (
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       })
-      .cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
-      })
       .send({
-        id: newUser._id,
+        user: {
+          id: newUser._id,
+          fullName: newUser.fullName,
+          email: newUser.email,
+          avatarUrl: newUser.avatarUrl || '',
+        },
+        accessToken,
       });
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
@@ -77,13 +77,15 @@ export const loginUser = async (
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       })
-      .cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
-      })
-      .send({});
+      .send({
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          avatarUrl: user.avatarUrl || '',
+        },
+        accessToken,
+      });
   } catch (error) {
     next(error);
   }
@@ -108,9 +110,6 @@ export const logOutUser = async (
     .clearCookie('refreshToken', {
       httpOnly: true,
     })
-    .clearCookie('accessToken', {
-      httpOnly: true,
-    })
     .json();
 };
 
@@ -124,10 +123,12 @@ export const getDataUser = async (
 
     if (user) {
       res.send({
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        avatarUrl: user.avatarUrl || '',
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          avatarUrl: user.avatarUrl || '',
+        },
       });
     } else {
       return next(new NotFoundError('User not found'));
@@ -171,13 +172,15 @@ export const refreshToken = async (
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       })
-      .cookie('accessToken', newAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 дня
-      })
-      .send();
+      .send({
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          avatarUrl: user.avatarUrl || '',
+        },
+        accessToken: newAccessToken,
+      });
   } catch (error) {
     return next(error);
   }

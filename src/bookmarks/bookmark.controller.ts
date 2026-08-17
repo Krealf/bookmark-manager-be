@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError, Schema } from 'mongoose';
 
 import BadRequestError from '../errors/bad-request-error';
+import { NotFoundError } from '../errors/not-found-error';
 import { transformError } from '../helpers/transform-error';
 import bookmarkModel, { Bookmark } from './bookmark.model';
 import BookmarkModel from './bookmark.model';
@@ -29,15 +30,17 @@ export const createBookmark = async (
       owner: ownerId,
     });
 
-    res.status(201).send(newBookmark.toJSON());
+    res.status(201).send(newBookmark);
   } catch (error) {
+    console.log(error);
+
     if (error instanceof MongooseError.ValidationError) {
       const errors = transformError(error);
 
       return next(new BadRequestError(errors[0].message));
     }
 
-    next(error);
+    return next(error);
   }
 };
 
@@ -53,6 +56,123 @@ export const getAllBookmarks = async (
 
     res.send(bookmarks);
   } catch (error) {
+    console.log(error);
+
+    if (error instanceof MongooseError.ValidationError) {
+      const errors = transformError(error);
+
+      return next(new BadRequestError(errors[0].message));
+    }
+
+    return next(error);
+  }
+};
+
+export const updateBookmark = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const bookmarkId = req.params.id;
+  const ownerId: Schema.Types.ObjectId = res.locals.user.id;
+  const updateData = req.body;
+
+  try {
+    const responseDocument = await BookmarkModel.findOneAndUpdate(
+      {
+        _id: bookmarkId,
+        owner: ownerId,
+      },
+      { $set: updateData },
+      { returnDocument: 'after' },
+    );
+
+    if (!responseDocument)
+      return next(new NotFoundError('The bookmark was not found..'));
+
+    res.status(200).send(responseDocument);
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof MongooseError.ValidationError) {
+      const errors = transformError(error);
+
+      return next(new BadRequestError(errors[0].message));
+    }
+
+    return next(error);
+  }
+};
+
+export const trackBookmarkVisit = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const bookmarkId = req.params.id;
+  const ownerId: Schema.Types.ObjectId = res.locals.user.id;
+
+  try {
+    const responseDocument = await BookmarkModel.findOneAndUpdate(
+      {
+        _id: bookmarkId,
+        owner: ownerId,
+      },
+      {
+        $set: {
+          visitedAt: Date.now(),
+        },
+        $inc: {
+          visitCount: 1,
+        },
+      },
+      { returnDocument: 'after' },
+    );
+
+    if (!responseDocument)
+      return next(new NotFoundError('The bookmark was not found.'));
+
+    res.status(200).send(responseDocument);
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof MongooseError.ValidationError) {
+      const errors = transformError(error);
+
+      return next(new BadRequestError(errors[0].message));
+    }
+
+    return next(error);
+  }
+};
+
+export const deleteBookmark = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const bookmarkId = req.params.id;
+  const ownerId: Schema.Types.ObjectId = res.locals.user.id;
+
+  try {
+    const responseDocument = await BookmarkModel.findOneAndDelete({
+      _id: bookmarkId,
+      owner: ownerId,
+    });
+
+    if (!responseDocument)
+      return next(new NotFoundError('The bookmark was not found.'));
+
+    res.status(204).send();
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof MongooseError.ValidationError) {
+      const errors = transformError(error);
+
+      return next(new BadRequestError(errors[0].message));
+    }
+
     return next(error);
   }
 };
