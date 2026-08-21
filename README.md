@@ -47,7 +47,11 @@ RESTful API сервис для управления пользовательс�
 - MongoDB >= 8.x
 - npm / yarn / pnpm
 
-### Вариант 1: Быстрый запуск через Docker (Рекомендуемый)
+### Вариант 1. Полноценный запуск (Backend + DB + Frontend)
+
+Для полноценного запуска вместе с MongoDB и фронтендом используйте главный репозиторий [bookmark-manager-infra](https://github.com/krealf/bookmark-manager-infra).
+
+### Вариант 2: Быстрый запуск через Docker
 
 Для запуска API вместе с изолированной базой данных MongoDB не требуется
 локальная установка Node.js или СУБД — достаточно установленного Docker Desktop.
@@ -74,10 +78,10 @@ docker compose ps
 4. Просмотр логов сервера в реальном времени:
 
 ```bash
-docker compose logs -f backend
+docker compose logs -f bookmark-backend
 ```
 
-API будет доступно по адресу `http://localhost:3001`, а порт MongoDB `27017`
+API будет доступно по адресу `http://localhost:5000`, а порт MongoDB `27017`
 проброшен на хост для подключения через GUI-клиенты (MongoDB Compass).
 
 Остановка сервисов:
@@ -88,7 +92,7 @@ docker compose down
 
 ---
 
-### Вариант 2: Локальная разработка (Manual)
+### Вариант 3: Локальная разработка (Manual)
 
 1. Клонируйте репозиторий:
 
@@ -109,7 +113,7 @@ npm install
 cp .env.example .env
 ```
 
-Отредактируйте `.env`::
+Отредактируйте `.env`:
 
 ```env
 # Настройка DB
@@ -131,14 +135,18 @@ CORS_ORIGIN=http://localhost:3000
 npm run dev
 ```
 
-5. Сборка и production-запуск:
+Сервер будет доступен по адресу `http://localhost:3001`.
+
+---
+
+## Сборка и запуск production:
 
 ```bash
-pnpm run build
-pnpm start
+npm run build
+npm start
 ```
 
-Сервер будет доступен по адресу `http://localhost:3001`.
+
 
 ## Основные эндпоинты API
 
