@@ -11,10 +11,10 @@ import {
 // Создаём роутер
 const router = Router();
 
-router.post('/api/bookmarks', createBookmark);
-router.post('/api/bookmarks/:id/visit', trackBookmarkVisit);
-router.patch('/api/bookmarks/:id', updateBookmark);
-router.get('/api/bookmarks', getAllBookmarks);
-router.delete('/api/bookmarks/:id', deleteBookmark);
+router.post('/bookmarks', createBookmark);
+router.post('/bookmarks/:id/visit', trackBookmarkVisit);
+router.patch('/bookmarks/:id', updateBookmark);
+router.get('/bookmarks', getAllBookmarks);
+router.delete('/bookmarks/:id', deleteBookmark);
 
 export default router;
