@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
-import AuthMiddleware from '../middleware/auth';
+import AuthMiddleware from '../middleware/auth.js';
 import {
   createUser,
   getDataUser,
   loginUser,
   logOutUser,
   refreshToken,
-} from './user.controller';
-import { userSchema, validate, verifyRefreshToken } from './user.validation';
+} from './user.controller.js';
+import { userSchema, validate, verifyRefreshToken } from './user.validation.js';
 
 const router = Router();
 

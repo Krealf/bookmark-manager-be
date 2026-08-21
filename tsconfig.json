@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022", // стандарт javascript
-    "module": "commonjs", // тип импорта/экспорта
-    "moduleResolution": "node",
+    "module": "nodenext", // тип импорта/экспорта
+    "moduleResolution": "nodenext",
     "rootDir": "./src", // указываем, где находятся исходники
     "outDir": "./dist", // куда класть скомпилированный js
     "esModuleInterop": true, // упрощает импорт

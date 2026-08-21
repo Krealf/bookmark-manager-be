@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import NotAuthorizedError from '../errors/not-authorized-error';
-import { isCustomPayload } from '../utils/type-guards';
+import NotAuthorizedError from '../errors/not-authorized-error.js';
+import { isCustomPayload } from '../utils/type-guards.js';
 
 const auth = (req: Request, res: Response, next: NextFunction) => {
   const authorizationHeader = req.headers.authorization;

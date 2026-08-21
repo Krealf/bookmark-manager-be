@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError } from 'mongoose';
 
-import { ErrorCodes } from '../constants/error-codes';
-import BadRequestError from '../errors/bad-request-error';
-import Conflict from '../errors/conflict-error';
-import NotAuthorizedError from '../errors/not-authorized-error';
-import { NotFoundError } from '../errors/not-found-error';
-import { transformError } from '../helpers/transform-error';
-import tokenModel from './token.model';
-import UserModel, { User } from './user.model';
+import { ErrorCodes } from '../constants/error-codes.js';
+import BadRequestError from '../errors/bad-request-error.js';
+import Conflict from '../errors/conflict-error.js';
+import NotAuthorizedError from '../errors/not-authorized-error.js';
+import { NotFoundError } from '../errors/not-found-error.js';
+import { transformError } from '../helpers/transform-error.js';
+import tokenModel from './token.model.js';
+import UserModel, { User } from './user.model.js';
 
 export const createUser = async (
   req: Request,

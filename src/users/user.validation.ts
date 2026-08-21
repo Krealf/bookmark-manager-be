@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import * as z from 'zod';
 import { ZodType } from 'zod';
 
-import NotAuthorizedError from '../errors/not-authorized-error';
-import { isCustomPayload } from '../utils/type-guards';
+import NotAuthorizedError from '../errors/not-authorized-error.js';
+import { isCustomPayload } from '../utils/type-guards.js';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{6,}$/;

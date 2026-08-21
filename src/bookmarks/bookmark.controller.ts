@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError, Schema } from 'mongoose';
 
-import BadRequestError from '../errors/bad-request-error';
-import { NotFoundError } from '../errors/not-found-error';
-import { transformError } from '../helpers/transform-error';
-import bookmarkModel, { Bookmark } from './bookmark.model';
-import BookmarkModel from './bookmark.model';
+import BadRequestError from '../errors/bad-request-error.js';
+import { NotFoundError } from '../errors/not-found-error.js';
+import { transformError } from '../helpers/transform-error.js';
+import bookmarkModel, { Bookmark } from './bookmark.model.js';
+import BookmarkModel from './bookmark.model.js';
 
 export const createBookmark = async (
   req: Request,

@@ -1,4 +1,4 @@
-import { CustomError } from './custom-error';
+import { CustomError } from './custom-error.js';
 
 export default class ForbiddenError extends CustomError {
   statusCode = 403;

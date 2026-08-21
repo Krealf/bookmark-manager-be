@@ -6,7 +6,7 @@ import {
   getAllBookmarks,
   trackBookmarkVisit,
   updateBookmark,
-} from './bookmark.controller';
+} from './bookmark.controller.js';
 
 // Создаём роутер
 const router = Router();

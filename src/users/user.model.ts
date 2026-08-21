@@ -2,7 +2,7 @@ import { compare, genSalt, hash } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Document, Model, model, Schema } from 'mongoose';
 
-import NotAuthorizedError from '../errors/not-authorized-error';
+import NotAuthorizedError from '../errors/not-authorized-error.js';
 
 export interface User {
   fullName: string;
